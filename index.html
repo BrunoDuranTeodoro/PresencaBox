@@ -1,11 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- salva como camera.html e abra via http(s) ou localhost -->
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Câmera Demo</title>
+  <style>
+    body{font-family:Inter,system-ui;display:flex;flex-direction:column;gap:12px;align-items:center;padding:20px}
+    video{width:640px;max-width:90%;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.12)}
+    canvas{display:none}
+    .controls{display:flex;gap:8px}
+    button{padding:8px 12px;border-radius:8px;border:1px solid #ddd;cursor:pointer}
+  </style>
 </head>
 <body>
-    
+  <h2>Teste da Câmera</h2>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <button id="start">Iniciar</button>
+    <button id="capture">Foto</button>
+    <button id="stop">Parar</button>
+    <select id="devices"></select>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const startBtn = document.getElementById('start');
+    const stopBtn = document.getElementById('stop');
+    const captureBtn = document.getElementById('capture');
+    const devicesSelect = document.getElementById('devices');
+
+    let stream = null;
+
+    async function listDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      devicesSelect.innerHTML = '';
+      devices.filter(d => d.kind === 'videoinput').forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.text = d.label || `Câmera ${devicesSelect.length+1}`;
+        devicesSelect.appendChild(opt);
+      });
+    }
+
+    async function startCamera(deviceId) {
+      if (stream) stopStream();
+      const constraints = {
+        audio: false,
+        video: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+    }
+
+    function stopStream() {
+      if (!stream) return;
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      video.srcObject = null;
+    }
+
+    captureBtn.addEventListener('click', () => {
+      if (!stream) return alert('Inicia a câmera primeiro 😉');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      // cria URL da imagem
+      const dataUrl = canvas.toDataURL('image/png');
+      // abre em nova aba (ou baixa)
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'foto.png';
+      a.click();
+    });
+
+    startBtn.addEventListener('click', async () => {
+      try {
+        await startCamera(devicesSelect.value || undefined);
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao acessar câmera: ' + err.message);
+      }
+    });
+
+    stopBtn.addEventListener('click', stopStream);
+
+    devicesSelect.addEventListener('change', () => startCamera(devicesSelect.value));
+
+    // init
+    (async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Seu navegador não suporta getUserMedia.');
+        return;
+      }
+      await listDevices();
+      // tenta iniciar a primeira automaticamente
+      if (devicesSelect.options.length) {
+        devicesSelect.selectedIndex = 0;
+        // não starta automaticamente por questões de permissão UX — deixa o botão
+      }
+    })();
+  </script>
 </body>
 </html>
