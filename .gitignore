@@ -1,1 +1,42 @@
 .DS_Store
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.dylib
+*.dll
+
+# Distribution / packaging
+.Python
+env/
+venv/
+pip-wheel-metadata/
+.tox/
+.coverage
+.eggs/
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.bak
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Virtual environment (common names)
+.venv/
+venv/
+env/
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
