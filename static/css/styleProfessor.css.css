@@ -1,0 +1,23 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+/* Fundo vermelho */
+.login-bg {
+  background-color: #ff4b4b;
+  height: 100vh;
+}
+
+/* Cartão central */
+.login-card {
+  background: white;
+  width: 300px;
+}
+
+/* Sidebar vermelha */
+.sidebar {
+  width: 60px;
+  background-color: #ff4b4b;
+  height: 100vh;
+}

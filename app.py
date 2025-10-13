@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import cv2
 import os
 import base64
@@ -106,7 +106,6 @@ def capturar_presenca():
         })
     else:
         return jsonify({'status': 'erro', 'mensagem': 'Rosto não encontrado.'})
-
 
 if __name__ == '__main__':
     app.run('0.0.0.0',debug=True)
