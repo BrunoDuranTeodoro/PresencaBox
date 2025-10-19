@@ -1,0 +1,156 @@
+/* Variáveis de Cores (SENAI/Dark Theme) */
+:root {
+    --senai-red: #ff0000;
+    --dark-bg: #1e1e1e; /* Fundo principal escuro */
+    --card-bg: #2a2a2a; /* Fundo dos cards e conteúdo principal */
+    --sidebar-bg: #151515; /* Fundo da sidebar, mais escuro */
+    --text-color: #f0f0f0; 
+    --text-muted: #aaaaaa;
+}
+
+/* Garante o uso de toda a tela e a fonte Poppins */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+}
+
+/* Wrapper principal do Dashboard (flex container) */
+.dashboard-wrapper {
+    min-height: calc(100vh - 30px); /* Garante que o conteúdo ocupe quase toda a altura */
+}
+
+/* =============================
+  SIDEBAR (BARRA LATERAL)
+  =============================
+*/
+
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.sidebar-header {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    color: var(--text-color);
+}
+
+.sidebar-header .fw-bold {
+    color: var(--senai-red);
+}
+
+.nav-link {
+    color: var(--text-muted);
+    transition: color 0.2s, background-color 0.2s;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+}
+
+.nav-link.active {
+    font-weight: 600;
+    color: var(--senai-red);
+}
+
+/* =============================
+  CONTEÚDO PRINCIPAL E HEADER
+  =============================
+*/
+
+.main-content {
+    background-color: var(--dark-bg);
+    overflow-y: auto; /* Permite scroll se o conteúdo for muito longo */
+}
+
+.main-header {
+    background-color: var(--card-bg); /* Fundo do header no tom dos cards */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.text-senai-red {
+    color: var(--senai-red) !important;
+}
+
+/* =============================
+  CARDS DE INFORMAÇÃO (STATS)
+  =============================
+*/
+
+.stat-card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
+/* =============================
+  ÁREA PRINCIPAL (WEBCAM E AÇÕES)
+  =============================
+*/
+
+.main-area-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.webcam-placeholder {
+    height: 350px; /* Altura fixa para a área da câmera */
+    background-color: #1e1e1e;
+    border: 3px dashed var(--text-muted);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-senai-red {
+    background-color: var(--senai-red);
+    border-color: var(--senai-red);
+    color: white;
+}
+
+.btn-senai-red:hover {
+    background-color: #c90000;
+    border-color: #c90000;
+    color: white;
+}
+
+.quick-list {
+    font-size: 0.95rem;
+}
+
+/* =============================
+  RODAPÉ
+  =============================
+*/
+
+.footer-senai {
+    background-color: var(--sidebar-bg);
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}

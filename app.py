@@ -27,6 +27,17 @@ def cadastrar():
 def login_professor():
     return render_template('Professor/loginProfessor.html', datetime=datetime)
 
+# ===== Página de Dashboard do Professor =====
+@app.route('/professor/dashboard')
+def dashboard_professor():
+    # Passando datetime para o template
+    return render_template(
+        'Professor/dashboardProfessor.html',
+        nome='Professor(a) Silva',
+        current_year=datetime.now().year,
+        hoje=datetime.now()
+    )
+
 # ===== Salvar novo rosto =====
 @app.route('/salvar_cadastro', methods=['POST'])
 def salvar_cadastro():
