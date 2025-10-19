@@ -12,18 +12,20 @@ face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 FACES_DIR = "faces"
 os.makedirs(FACES_DIR, exist_ok=True)
 
-
 # ===== Página Inicial (presença) =====
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 # ===== Página de Cadastro =====
 @app.route('/cadastrar')
 def cadastrar():
     return render_template('cadastro.html')
 
+# ===== Página de Login do Professor =====
+@app.route('/professor/login')
+def login_professor():
+    return render_template('Professor/loginProfessor.html', datetime=datetime)
 
 # ===== Salvar novo rosto =====
 @app.route('/salvar_cadastro', methods=['POST'])
