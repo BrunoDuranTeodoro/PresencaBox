@@ -12,12 +12,12 @@ face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 FACES_DIR = "faces"
 os.makedirs(FACES_DIR, exist_ok=True)
 
-# ===== Página Inicial (presença) =====
+# ===== Página Inicial (presença) =======
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# ===== Página de Cadastro =====
+# ===== Página de Cadastro ===============
 @app.route('/cadastrar')
 def cadastrar():
     return render_template('cadastro.html')
@@ -27,13 +27,35 @@ def cadastrar():
 def login_professor():
     return render_template('Professor/loginProfessor.html', datetime=datetime)
 
-# ===== Página de Dashboard do Professor =====
+# ===== Página de Dashboard do Professor ==
 @app.route('/professor/dashboard')
 def dashboard_professor():
     # Passando datetime para o template
     return render_template(
         'Professor/dashboardProfessor.html',
         nome='Professor(a) Silva',
+        current_year=datetime.now().year,
+        hoje=datetime.now()
+    )
+
+# ===== Página de Perfil do Professor =====
+@app.route('/professor/perfil')
+def perfil_professor():
+    professor = {
+        "nome": "Professor(a) Silva",
+        "cargo": "Instrutor Técnico I",
+        "registro": "123456",
+        "email": "professor.silva@senai.br",
+        "unidade": "SENAI-SP Unidade Industrial",
+        "telefone": "(11) 98765-4321",
+        "acesso": "10/01/2020",
+        "ultimo_login": "27/10/2025",
+        "turmas": ["Téc. Elétrica A", "Téc. Mecânica B"]
+    }
+
+    return render_template(
+        'Professor/perfilProfessor.html',
+        professor=professor,
         current_year=datetime.now().year,
         hoje=datetime.now()
     )
