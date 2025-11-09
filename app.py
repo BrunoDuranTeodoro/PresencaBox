@@ -5,12 +5,24 @@ import base64
 import numpy as np
 from datetime import datetime
 
+import mysql.connector
+from mysql.connector import Error
+
 app = Flask(__name__)
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # Pasta onde os rostos são salvos
 FACES_DIR = "faces"
 os.makedirs(FACES_DIR, exist_ok=True)
+
+# ===== Conexao com o banco de dados =======
+def get_db_connection():
+    return mysql.connector.connect(
+        host="db",          # nome do serviço no docker-compose
+        user="root",
+        password="root",
+        database="faceapp"
+    )
 
 # ===== Página Inicial (presença) =======
 @app.route('/')
@@ -82,6 +94,17 @@ def salvar_cadastro():
         rosto = cv2.resize(rosto, (200, 200))
         cv2.imwrite(os.path.join(FACES_DIR, f"{nome}.jpg"), rosto)
         break
+
+    # Salvar no banco
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO usuarios (nome, data_cadastro) VALUES (%s, %s)", (nome, datetime.now()))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print("Erro ao inserir no banco:", e)
 
     return jsonify({'status': 'ok', 'mensagem': 'Rosto cadastrado com sucesso!'})
 

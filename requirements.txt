@@ -2,3 +2,4 @@ Flask>=3.0
 opencv-python
 opencv-contrib-python
 numpy
+mysql-connector-python
