@@ -150,7 +150,8 @@ def dashboard_professor():
 
     return render_template(
         "Professor/dashboardProfessor.html",
-        professor=professor,
+        professor=professor,                         # envia objeto completo
+        nome=professor["nome"],                      # envia somente o nome
         turmas=[],
         hoje=datetime.now(),
         current_year=datetime.now().year
