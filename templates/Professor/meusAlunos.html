@@ -1,11 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meus Alunos - SENAI Presença</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleDashboardProfessor.css') }}" />
 </head>
+
 <body>
-    
+<div class="dashboard-wrapper d-flex">
+
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column p-3">
+        <div class="sidebar-header text-center mb-5">
+            <span class="fw-bold me-1">SENAI</span><br />Presença Facial
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item mb-2">
+                <a href="{{ url_for('dashboard_professor') }}" class="nav-link">
+                    <i class="bi bi-house-door-fill me-2"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="nav-item mb-2">
+                <a href="{{ url_for('professor_alunos') }}" class="nav-link active">
+                    <i class="bi bi-people-fill me-2"></i> Meus Alunos
+                </a>
+            </li>
+
+            <li class="nav-item mb-2">
+                <a href="{{ url_for('professor_relatorios') }}" class="nav-link">
+                    <i class="bi bi-calendar-check-fill me-2"></i> Relatórios
+                </a>
+            </li>
+
+            <li class="nav-item mb-2">
+                <a href="{{ url_for('perfil_professor') }}" class="nav-link">
+                    <i class="bi bi-person-circle me-2"></i> Perfil
+                </a>
+            </li>
+        </ul>
+
+        <hr />
+
+        <div class="dropdown">
+            <a href="{{ url_for('logout_professor') }}" class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-box-arrow-right me-2 text-danger"></i>
+                <strong class="text-danger">Sair</strong>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content flex-grow-1">
+
+        <header class="main-header p-3 mb-4 d-flex justify-content-between align-items-center">
+            <div class="welcome-info">
+                <h5 class="mb-0">Olá, <span class="text-senai-red fw-bold">{{ nome }}</span>!</h5>
+                <p class="text-muted small mb-0">
+                    {{ hoje.strftime("%A, %d de %B de %Y") }}
+                </p>
+            </div>
+
+            <a href="{{ url_for('logout_professor') }}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </a>
+        </header>
+
+        <!-- Conteúdo da página -->
+        <div class="container">
+
+            <h3 class="mb-4 fw-bold">Lista de Alunos</h3>
+
+            {% if alunos %}
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Turma</th>
+                        <th>Data de Cadastro</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aluno in alunos %}
+                    <tr>
+                        <td>{{ aluno.nome }}</td>
+                        <td>{{ aluno.turma }}</td>
+                        <td>{{ aluno.data_cadastro.strftime("%d/%m/%Y") }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" href="#">
+                                Ver Perfil
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+                <p class="text-muted">Nenhum aluno cadastrado ainda.</p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="footer-senai text-center p-2 small">
+    © SENAI-SP {{ current_year }} | Sistema de Presença Facial
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

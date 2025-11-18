@@ -46,10 +46,55 @@ def index():
 def cadastrar():
     return render_template('cadastro.html')
 
+# ===== Página de Alunos ===============
 @app.route('/professor/alunos')
+@login_required
 def professor_alunos():
-    return render_template('Professor/meusAlunos.html')
+    professor_id = session.get("professor_id")
 
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Buscar turmas do professor
+        cursor.execute("""
+            SELECT id, nome 
+            FROM turmas 
+            WHERE professor_id = %s
+            ORDER BY nome
+        """, (professor_id,))
+        turmas = cursor.fetchall()
+
+        # Buscar alunos dessas turmas
+        cursor.execute("""
+            SELECT a.id, a.nome, a.data_cadastro, t.nome AS turma
+            FROM alunos a
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+            ORDER BY t.nome, a.nome
+        """, (professor_id,))
+        alunos = cursor.fetchall()
+
+        cursor.execute("SELECT nome FROM professores WHERE id = %s", (professor_id,))
+        prof = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        return render_template(
+            "Professor/meusAlunos.html",
+            nome=prof["nome"],
+            turmas=turmas,
+            alunos=alunos,
+            hoje=datetime.now(),
+            current_year=datetime.now().year
+        )
+
+    except Exception as e:
+        print("Erro:", e)
+        return "Erro interno ao carregar alunos", 500
+
+# ===== Página de Relatorios ===============
 @app.route('/professor/relatorios')
 def professor_relatorios():
     return render_template('Professor/relatorios.html')
