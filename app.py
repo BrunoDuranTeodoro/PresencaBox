@@ -52,6 +52,11 @@ def cadastrar():
 def professor_alunos():
     professor_id = session.get("professor_id")
 
+    # Recebendo filtros da URL
+    filtro_turma = request.args.get("turma")
+    busca_nome = request.args.get("busca")
+    ordem = request.args.get("ordem", "asc")  # asc ou desc
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -65,14 +70,32 @@ def professor_alunos():
         """, (professor_id,))
         turmas = cursor.fetchall()
 
-        # Buscar alunos dessas turmas
-        cursor.execute("""
+        # Montar query dinamicamente
+        query = """
             SELECT a.id, a.nome, a.data_cadastro, t.nome AS turma
             FROM alunos a
             JOIN turmas t ON a.turma_id = t.id
             WHERE t.professor_id = %s
-            ORDER BY t.nome, a.nome
-        """, (professor_id,))
+        """
+        params = [professor_id]
+
+        # Filtro por turma
+        if filtro_turma and filtro_turma != "todas":
+            query += " AND t.id = %s"
+            params.append(filtro_turma)
+
+        # Filtro por nome (busca)
+        if busca_nome:
+            query += " AND a.nome LIKE %s"
+            params.append(f"%{busca_nome}%")
+
+        # Ordenação
+        if ordem == "desc":
+            query += " ORDER BY a.nome DESC"
+        else:
+            query += " ORDER BY a.nome ASC"
+
+        cursor.execute(query, params)
         alunos = cursor.fetchall()
 
         cursor.execute("SELECT nome FROM professores WHERE id = %s", (professor_id,))
@@ -86,6 +109,9 @@ def professor_alunos():
             nome=prof["nome"],
             turmas=turmas,
             alunos=alunos,
+            filtro_turma=filtro_turma,
+            busca_nome=busca_nome,
+            ordem=ordem,
             hoje=datetime.now(),
             current_year=datetime.now().year
         )
@@ -93,6 +119,7 @@ def professor_alunos():
     except Exception as e:
         print("Erro:", e)
         return "Erro interno ao carregar alunos", 500
+
 
 # ===== Página de Relatorios ===============
 @app.route('/professor/relatorios')
