@@ -4,7 +4,7 @@ import cv2
 import os
 import base64
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import mysql.connector
 from mysql.connector import Error
@@ -39,10 +39,11 @@ def login_required(f):
 # ===== Página Inicial (presença) =======
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', current_year=datetime.now().year)
 
 # ===== Página de Cadastro ===============
 @app.route('/cadastrar')
+@login_required 
 def cadastrar():
     return render_template('cadastro.html')
 
@@ -123,16 +124,93 @@ def professor_alunos():
 
 # ===== Página de Relatorios ===============
 @app.route('/professor/relatorios')
+@login_required
 def professor_relatorios():
-    return render_template('Professor/relatorios.html')
+    professor_id = session.get("professor_id")
 
-@app.route('/get_turmas', methods=['GET'])
-def get_turmas():
+    # Filtros da URL
+    data_str = request.args.get("data")
+    if not data_str:
+        data_ref = datetime.now().date()
+        data_str = data_ref.strftime("%Y-%m-%d")
+    else:
+        data_ref = datetime.strptime(data_str, "%Y-%m-%d").date()
+
+    filtro_turma = request.args.get("turma", "todas")
+
     try:
         conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Turmas do professor (para o select)
+        cursor.execute("""
+            SELECT id, nome
+            FROM turmas
+            WHERE professor_id = %s
+            ORDER BY nome
+        """, (professor_id,))
+        turmas = cursor.fetchall()
+
+        # Relatório de presenças
+        query = """
+            SELECT 
+                p.id,
+                p.data_hora,
+                COALESCE(a.nome, p.aluno_nome) AS aluno_nome,
+                t.nome AS turma_nome
+            FROM presencas p
+            LEFT JOIN alunos a ON p.aluno_id = a.id
+            LEFT JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+              AND DATE(p.data_hora) = %s
+        """
+        params = [professor_id, data_ref]
+
+        if filtro_turma != "todas" and filtro_turma:
+            query += " AND t.id = %s"
+            params.append(filtro_turma)
+
+        query += " ORDER BY p.data_hora DESC"
+
+        cursor.execute(query, params)
+        presencas = cursor.fetchall()
+
+        # Número total de presenças no dia (já filtrado)
+        total_presencas = len(presencas)
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print("Erro ao carregar relatórios:", e)
+        return "Erro interno ao carregar relatórios", 500
+
+    return render_template(
+        "Professor/relatorios.html",
+        nome=session.get("professor_nome"),
+        turmas=turmas,
+        presencas=presencas,
+        filtro_turma=filtro_turma,
+        data_selecionada=data_str,
+        total_presencas=total_presencas,
+        hoje=datetime.now(),
+        current_year=datetime.now().year
+    )
+
+@app.route('/get_turmas', methods=['GET'])
+@login_required
+def get_turmas():
+    try:
+        professor_id = session.get("professor_id")
+        conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, nome FROM turmas ORDER BY nome")
-        turmas = cursor.fetchall()  # [(1, "Turma A"), (2, "Turma B"), ...]
+        cursor.execute("""
+            SELECT id, nome 
+            FROM turmas 
+            WHERE professor_id = %s
+            ORDER BY nome
+        """, (professor_id,))
+        turmas = cursor.fetchall()
         cursor.close()
         conn.close()
 
@@ -140,8 +218,7 @@ def get_turmas():
         return jsonify(turmas_list)
     except Error as e:
         print("Erro ao buscar turmas:", e)
-        return jsonify([])  # vazio se der erro
-
+        return jsonify([])
 
 # ====== LOGIN DO PROFESSOR ======
 @app.route('/professor/login', methods=['GET', 'POST'])
@@ -210,23 +287,129 @@ def dashboard_professor():
     if not professor_id:
         return "Erro: sessão do professor não encontrada", 400
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM professores WHERE id = %s", (professor_id,))
-    professor = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    hoje = datetime.now()
+    hoje_date = hoje.date()
+    start_date = hoje_date - timedelta(days=6)  # últimos 7 dias (inclui hoje)
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1) Dados do professor
+        cursor.execute("SELECT * FROM professores WHERE id = %s", (professor_id,))
+        professor = cursor.fetchone()
+
+        # 2) Quantidade de turmas
+        cursor.execute("""
+            SELECT COUNT(*) AS total_turmas
+            FROM turmas
+            WHERE professor_id = %s
+        """, (professor_id,))
+        total_turmas = cursor.fetchone()["total_turmas"]
+
+        # 3) Quantidade de alunos
+        cursor.execute("""
+            SELECT COUNT(*) AS total_alunos
+            FROM alunos a
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+        """, (professor_id,))
+        total_alunos = cursor.fetchone()["total_alunos"]
+
+        # 4) Presenças hoje
+        cursor.execute("""
+            SELECT COUNT(*) AS presencas_hoje
+            FROM presencas p
+            JOIN alunos a ON p.aluno_id = a.id
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+              AND DATE(p.data_hora) = %s
+        """, (professor_id, hoje_date))
+        presencas_hoje = cursor.fetchone()["presencas_hoje"]
+
+        # 5) Presenças no mês
+        cursor.execute("""
+            SELECT COUNT(*) AS presencas_mes
+            FROM presencas p
+            JOIN alunos a ON p.aluno_id = a.id
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+              AND YEAR(p.data_hora) = %s
+              AND MONTH(p.data_hora) = %s
+        """, (professor_id, hoje_date.year, hoje_date.month))
+        presencas_mes = cursor.fetchone()["presencas_mes"]
+
+        # 6) Alunos sem presença hoje
+        cursor.execute("""
+            SELECT COUNT(*) AS alunos_sem_presenca_hoje
+            FROM alunos a
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+              AND NOT EXISTS (
+                  SELECT 1 FROM presencas p
+                  WHERE p.aluno_id = a.id
+                    AND DATE(p.data_hora) = %s
+              )
+        """, (professor_id, hoje_date))
+        alunos_sem_presenca_hoje = cursor.fetchone()["alunos_sem_presenca_hoje"]
+
+        # 7) Dados para o gráfico - presenças por dia e turma (últimos 7 dias)
+        cursor.execute("""
+            SELECT 
+                DATE(p.data_hora) AS dia,
+                t.nome AS turma_nome,
+                COUNT(*) AS total
+            FROM presencas p
+            JOIN alunos a ON p.aluno_id = a.id
+            JOIN turmas t ON a.turma_id = t.id
+            WHERE t.professor_id = %s
+              AND DATE(p.data_hora) BETWEEN %s AND %s
+            GROUP BY dia, turma_nome
+            ORDER BY dia, turma_nome
+        """, (professor_id, start_date, hoje_date))
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print("Erro no dashboard:", e)
+        return "Erro interno ao carregar dashboard", 500
 
     if not professor:
         return f"Erro: professor com id {professor_id} não encontrado", 404
 
+    # Montar lista de dias (últimos 7 dias)
+    dias = [start_date + timedelta(days=i) for i in range(7)]
+    chart_labels = [d.strftime("%d/%m") for d in dias]
+
+    # Montar estrutura: { "ADS A": [0, 2, 1, ...], "Turma X": [...] }
+    chart_data = {}
+    for row in rows:
+        dia = row["dia"]      # date
+        turma = row["turma_nome"]
+        total = row["total"]
+
+        if turma not in chart_data:
+            chart_data[turma] = [0] * len(dias)
+
+        idx = (dia - start_date).days
+        if 0 <= idx < len(dias):
+            chart_data[turma][idx] = total
+
     return render_template(
         "Professor/dashboardProfessor.html",
-        professor=professor,                         # envia objeto completo
-        nome=professor["nome"],                      # envia somente o nome
-        turmas=[],
-        hoje=datetime.now(),
-        current_year=datetime.now().year
+        professor=professor,
+        nome=professor["nome"],
+        hoje=hoje,
+        current_year=hoje.year,
+        total_turmas=total_turmas,
+        total_alunos=total_alunos,
+        presencas_hoje=presencas_hoje,
+        presencas_mes=presencas_mes,
+        alunos_sem_presenca_hoje=alunos_sem_presenca_hoje,
+        chart_labels=chart_labels,
+        chart_data=chart_data
     )
 
 # ===== Página de Perfil do Professor =====
@@ -274,6 +457,7 @@ def perfil_professor():
 
 # ===== Salvar novo rosto =====
 @app.route('/salvar_cadastro', methods=['POST'])
+@login_required
 def salvar_cadastro():
     data = request.json
     nome = data['nome']
@@ -363,11 +547,43 @@ def capturar_presenca():
     label, conf = recognizer.predict(rosto_capturado_gray)
 
     # Limite de confiança (quanto menor, mais parecido)
-    if conf < 80:  # Ajustável, testando você pode aumentar/decrementar
-        hora = datetime.now().strftime("%H:%M:%S")
+    if conf < 80:  # Ajuste conforme testes
+        nome_reconhecido = nomes_dict[label]
+        agora = datetime.now()
+
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            # Tenta encontrar o aluno pelo nome (pega o primeiro que achar)
+            cursor.execute(
+                "SELECT id FROM alunos WHERE nome = %s LIMIT 1",
+                (nome_reconhecido,)
+            )
+            row = cursor.fetchone()
+            aluno_id = row[0] if row else None
+
+            # Insere a presença
+            cursor.execute("""
+                INSERT INTO presencas (aluno_id, aluno_nome, data_hora)
+                VALUES (%s, %s, %s)
+            """, (aluno_id, nome_reconhecido, agora))
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+        except Error as e:
+            print("Erro ao registrar presença no banco:", e)
+            return jsonify({
+                'status': 'erro',
+                'mensagem': f'Presença reconhecida para {nome_reconhecido}, mas houve erro ao salvar no banco.'
+            })
+
+        hora = agora.strftime("%H:%M:%S")
         return jsonify({
             'status': 'ok',
-            'mensagem': f'Presença registrada para {nomes_dict[label]} às {hora}.'
+            'mensagem': f'Presença registrada para {nome_reconhecido} às {hora}.'
         })
     else:
         return jsonify({'status': 'erro', 'mensagem': 'Rosto não encontrado.'})

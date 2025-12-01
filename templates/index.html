@@ -1,44 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Presença Facial</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SENAI Presença Facial</title>
 
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/stylePresenca.css') }}">
-</head>
-<body class="bg-light">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --senai-red: #ff0000;
+        --dark-bg: #1b1b1b;
+        --card-bg: #262626;
+        --text-color: #f9fafb;
+        --text-muted: #9ca3af;
+      }
 
-  <div class="container py-5 text-center">
-    <h2 class="mb-4">Controle de Presença Facial</h2>
-    <p id="horaAtual" class="mb-3 text-muted"></p>
+      body {
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        background: radial-gradient(circle at top, rgba(255, 0, 0, 0.18) 0, #1b1b1b 45%, #141414 100%);
+        color: var(--text-color);
+      }
 
-    <div class="mb-3">
-      <label for="cameraSelect" class="form-label">Selecionar câmera:</label>
-      <select id="cameraSelect" class="form-select w-auto mx-auto"></select>
-    </div>
+      .hero-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+        max-width: 920px;
+        width: 100%;
+      }
 
-    <div class="mb-4">
-      <video id="video" class="border rounded" autoplay playsinline width="320" height="240"></video>
-      <canvas id="canvas" style="display:none;"></canvas>
-    </div>
+      .brand-badge {
+        font-size: 0.85rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--senai-red);
+      }
 
-    <div class="d-flex justify-content-center gap-3 mb-4">
-      <button id="btnStart" class="btn btn-primary">Iniciar Captura</button>
-      <button id="btnSnapshot" class="btn btn-success">Tirar Foto</button>
-    </div>
+      .hero-title {
+        font-weight: 700;
+        font-size: 2rem;
+      }
 
-    <div id="result" class="fw-bold"></div>
+      .hero-subtitle {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
 
-    <hr class="my-4">
-    <a href="{{ url_for('cadastrar') }}" class="btn btn-outline-secondary">Cadastrar Novo Aluno</a>
-  </div>
+      .btn-primary-main {
+        background: var(--senai-red);
+        border: none;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: 0.8rem 1.5rem;
+      }
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
+      .btn-primary-main:hover {
+        background: #cc0000;
+      }
+
+      .text-muted-soft {
+        color: var(--text-muted);
+      }
+
+      .camera-card {
+        background: #181818;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1.5rem;
+      }
+
+      .video-wrapper {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #020617;
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+      }
+
+      .face-tip {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .btn-round {
+        border-radius: 999px;
+        font-weight: 600;
+      }
+
+      footer {
+        color: var(--text-muted);
+      }
+
+      select.form-select {
+        background-color: #181818;
+        color: var(--text-color);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      select.form-select:focus {
+        background-color: #181818;
+        border-color: var(--senai-red);
+        box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.35);
+      }
+    </style>
+  </head>
+
+  <body class="d-flex flex-column align-items-center justify-content-center">
+
+    <main class="hero-card">
+      <div class="row g-4 align-items-start">
+        <!-- LADO ESQUERDO: TEXTO -->
+        <div class="col-lg-5">
+          <div class="mb-3 brand-badge">SENAI · Presença Facial</div>
+
+          <h1 class="hero-title mb-2">Registro de Presença com o seu Rosto</h1>
+          <p class="hero-subtitle mb-4">
+            Olhe para a câmera, aguarde a captura da imagem e o sistema registra automaticamente a sua presença.
+          </p>
+
+          <p class="small text-muted-soft mb-3">
+            Dica: use um ambiente bem iluminado e mantenha o rosto centralizado na imagem.
+          </p>
+
+          <p class="small text-muted-soft mb-0">
+            <a href="{{ url_for('login_professor') }}" class="link-light text-decoration-none">
+              Sou professor(a)? Acesse o painel de controle →
+            </a>
+          </p>
+        </div>
+
+        <!-- LADO DIREITO: CÂMERA -->
+        <div class="col-lg-7">
+          <div class="camera-card">
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+              <div>
+                <label for="cameraSelect" class="form-label mb-1">Selecionar câmera</label>
+                <select id="cameraSelect" class="form-select form-select-sm w-auto"></select>
+              </div>
+            </div>
+
+            <div class="video-wrapper mb-2">
+              <video
+                id="video"
+                autoplay
+                playsinline
+                muted
+              ></video>
+            </div>
+
+            <p class="face-tip mb-3">
+              Quando estiver pronto, clique em <strong>"Registrar Presença"</strong>. 
+              O sistema irá capturar a imagem e identificar você.
+            </p>
+
+            <div class="d-flex gap-2 mb-3">
+              <button id="btnStart" class="btn btn-outline-light btn-round px-3">
+                Iniciar câmera
+              </button>
+              <button id="btnSnapshot" class="btn btn-primary-main btn-round px-3">
+                Registrar Presença
+              </button>
+            </div>
+
+            <div id="result" class="fw-bold"></div>
+            <canvas id="canvas" style="display:none;"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-4 small text-center">
+      © SENAI-SP {{ current_year if current_year is defined else 2025 }} | Sistema de Presença Facial
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
 </html>

@@ -30,6 +30,16 @@ CREATE TABLE IF NOT EXISTS alunos (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS presencas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aluno_id INT NULL,
+    aluno_nome VARCHAR(255) NOT NULL,
+    data_hora DATETIME NOT NULL,
+
+    FOREIGN KEY (aluno_id) REFERENCES alunos(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ================================
 -- INSERTS DE TESTE

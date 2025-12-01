@@ -1,49 +1,47 @@
-/* Variáveis de Cores (SENAI/Dark Theme) */
+/* ==========================================
+   LOGIN DO PROFESSOR - TEMA PADRÃO DASHBOARD
+   ========================================== */
+
+/* Variáveis */
 :root {
-    --senai-red: #ff0000; 
-    --dark-bg: #151515; 
-    --card-bg: #212121; 
-    --input-bg: #333333; 
-    --text-color: #f0f0f0; 
-    --text-muted: #aaaaaa; 
-    --input-placeholder-color: #777777; /* Cor mais escura para o placeholder */
+    --senai-red: #ff0000;
+    --dark-bg: #1b1b1b;
+    --card-bg: #262626;
+    --input-bg: #333333;
+    --text-color: #f0f0f0;
+    --text-muted: #aaaaaa;
+    --input-placeholder-color: #777777;
 }
 
-/* =============================
-  ESTILOS GERAIS E DO FUNDO (SOBRESCRITA DE BOOTSTRAP) 
-  =============================
-*/
-/* Garante que o body e html ocupem a altura total */
+/* Fundo geral */
 html, body {
     height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-.login-senai-bg {
-    /* Fundo escuro forçado */
-    background-color: var(--dark-bg) !important; 
+body.login-senai-bg {
+    background-color: var(--dark-bg) !important;
     min-height: 100vh;
     font-family: 'Poppins', sans-serif;
     color: var(--text-color);
-    overflow: hidden; 
-    position: relative; 
-    margin: 0; /* Remove margens padrão que o Bootstrap pode adicionar */
-    padding: 0; /* Remove paddings padrão */
-    
-    /* Padrão visual (pontos e linhas) */
-    background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    overflow: hidden;
+    position: relative;
+
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 20px 20px;
 }
 
-/* Elementos decorativos (os cubos e pontos) */
+/* Elementos decorativos */
 .login-senai-bg::before,
 .login-senai-bg::after {
     content: '';
     position: absolute;
     width: 150px;
     height: 150px;
-    background: rgba(255, 255, 255, 0.08); /* Mais sutil */
+    background: rgba(255, 255, 255, 0.06);
     transform: rotate(45deg);
     z-index: 0;
 }
@@ -51,45 +49,40 @@ html, body {
 .login-senai-bg::before {
     top: -50px;
     right: -50px;
-    box-shadow: 
-        -80px 80px 0 0 rgba(255, 255, 255, 0.1),
-        -160px 160px 0 0 rgba(255, 255, 255, 0.05);
+    box-shadow:
+        -80px 80px 0 0 rgba(255, 255, 255, 0.08),
+        -160px 160px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .login-senai-bg::after {
     bottom: -50px;
     left: -50px;
-    box-shadow: 
-        80px -80px 0 0 rgba(255, 255, 255, 0.1),
-        160px -160px 0 0 rgba(255, 255, 255, 0.05);
+    box-shadow:
+        80px -80px 0 0 rgba(255, 255, 255, 0.08),
+        160px -160px 0 0 rgba(255, 255, 255, 0.04);
 }
 
-/* =============================
-  ESTILOS DO CABEÇALHO 
-  =============================
-*/
-
+/* Cabeçalho fixo */
 .header-senai {
-    position: fixed; /* Mudei para fixed para garantir que fique no topo */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 10;
-    padding: 1rem 2rem; /* Adiciona padding mais generoso */
-    color: var(--text-color); 
-    background: rgba(21, 21, 21, 0.5); /* Fundo semi-transparente */
-    backdrop-filter: blur(5px); /* Efeito de desfoque */
+    padding: 1rem 2rem;
+    color: var(--text-color);
+    background: rgba(21, 21, 21, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .logo-text {
     font-size: 1.1rem;
     letter-spacing: 0.5px;
-    font-weight: 400;
 }
 
 .logo-text .fw-bold {
     color: var(--senai-red);
-    font-weight: 700 !important; /* Força o negrito */
+    font-weight: 700 !important;
 }
 
 .manual-acesso {
@@ -103,21 +96,17 @@ html, body {
     color: var(--text-color);
 }
 
-/* =============================
-  ESTILOS DO CARD DE LOGIN 
-  =============================
-*/
-
+/* Card de login */
 .login-senai-card {
     width: 100%;
     max-width: 380px;
-    background-color: var(--card-bg) !important; /* Força o fundo do card */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
-    z-index: 5; 
+    background-color: var(--card-bg) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    z-index: 5;
     position: relative;
     text-align: center;
-    padding: 2.5rem !important; /* Ajusta o padding interno */
+    padding: 2.5rem !important;
 }
 
 .login-senai-title {
@@ -139,31 +128,20 @@ html, body {
     margin-top: 3rem !important;
 }
 
-/* =============================
-  ESTILOS DOS INPUTS E BOTÃO 
-  =============================
-*/
-
-/* Estilos para o campo de input e o label (Floating do Bootstrap) */
-.form-floating > .form-control.login-senai-input, 
-.form-floating > .form-control.login-senai-input:focus {
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-placeholder-color); /* Borda escura */
-    color: var(--text-color); /* Texto digitado branco */
-    height: 50px;
-    box-shadow: none !important; /* Remove o shadow azul do foco do Bootstrap */
-    padding-top: 1.625rem;
-    padding-bottom: 0.625rem;
+/* Inputs */
+.login-senai-input {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--input-placeholder-color) !important;
+    color: var(--text-color) !important;
+    height: 48px;
+    box-shadow: none !important;
 }
 
-/* Estilo do label flutuante */
-.form-floating > label {
-    color: var(--text-muted); /* Cor do texto do label */
-    opacity: 0.8;
-    padding-top: 0.625rem;
+.login-senai-input::placeholder {
+    color: var(--input-placeholder-color) !important;
 }
 
-/* Estilo do botão "Avançar" */
+/* Botão */
 .login-senai-btn {
     background-color: var(--senai-red) !important;
     border-color: var(--senai-red) !important;
@@ -175,28 +153,6 @@ html, body {
 }
 
 .login-senai-btn:hover {
-    background-color: #c90000 !important; 
+    background-color: #c90000 !important;
     border-color: #c90000 !important;
-}
-
-
-/* =============================
-  ESTILOS DE ACESSIBILIDADE 
-  =============================
-*/
-.acessibility-icons {
-    position: fixed;
-    right: 20px;
-    top: 50%; 
-    transform: translateY(-50%);
-    z-index: 10;
-}
-
-.acessibility-icons .btn-secondary {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--text-color);
-    font-size: 0.75rem;
-    width: 100px; /* Largura fixa para ficar empilhado */
-    text-align: center;
 }

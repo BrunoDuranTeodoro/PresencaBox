@@ -1,8 +1,15 @@
+/* ==========================================
+   PERFIL DO PROFESSOR - TEMA PADRÃO DASHBOARD
+   ========================================== */
+
 :root {
   --senai-red: #ff0000;
-  --dark-bg: #1e1e1e;
-  --card-bg: #2a2a2a;
-  --sidebar-bg: #151515;
+  --senai-red-dark: #cc0000;
+
+  --dark-bg: #1b1b1b;
+  --card-bg: #262626;
+  --sidebar-bg: #141414;
+
   --text-color: #f0f0f0;
   --text-muted: #aaaaaa;
 }
@@ -21,25 +28,35 @@ body, html {
   color: var(--text-color);
 }
 
-/* Sidebar */
+/* Sidebar (mesmo estilo do dashboard) */
 .sidebar {
   width: 250px;
   background-color: var(--sidebar-bg);
   color: var(--text-color);
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.6);
 }
+
 .sidebar-header {
   font-size: 1.25rem;
   color: var(--text-color);
 }
+
 .sidebar-header .fw-bold {
   color: var(--senai-red);
 }
+
 .nav-link {
   color: var(--text-muted);
   padding: 0.75rem 1rem;
   border-radius: 8px;
+  transition: background-color 0.15s, color 0.15s;
 }
+
+.nav-link:hover {
+  background-color: #202020;
+  color: var(--text-color);
+}
+
 .nav-link.active {
   font-weight: 600;
   color: var(--senai-red);
@@ -52,15 +69,17 @@ body, html {
   overflow-y: auto;
   color: var(--text-color);
 }
+
 .main-header {
   background-color: var(--card-bg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 .text-senai-red {
   color: var(--senai-red) !important;
 }
 
-/* Perfil */
+/* Cards do perfil */
 .main-area-card {
   background-color: var(--card-bg);
   border-radius: 12px;
@@ -68,6 +87,7 @@ body, html {
   color: var(--text-color);
 }
 
+/* Avatar do professor */
 .profile-avatar {
   width: 150px;
   height: 150px;
@@ -76,11 +96,13 @@ body, html {
   border: 4px solid var(--senai-red);
 }
 
+/* Linhas de detalhe */
 .profile-detail {
-  font-size: 1.1rem;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
+
 .profile-detail:last-child {
   border-bottom: none;
 }
@@ -96,6 +118,7 @@ body, html {
   color: var(--text-color);
   border-color: var(--text-muted);
 }
+
 .btn-outline-secondary:hover {
   color: white;
   background-color: var(--senai-red);

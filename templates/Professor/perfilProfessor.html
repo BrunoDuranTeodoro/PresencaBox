@@ -30,10 +30,7 @@
         </div>
         <ul class="nav flex-column mb-auto">
           <li class="nav-item mb-2">
-            <a
-              href="{{ url_for('dashboard_professor') }}"
-              class="nav-link active"
-            >
+            <a href="{{ url_for('dashboard_professor') }}" class="nav-link">
               <i class="bi bi-house-door-fill me-2"></i> Dashboard
             </a>
           </li>
@@ -45,16 +42,13 @@
           </li>
 
           <li class="nav-item mb-2">
-            <a
-              href="{{ url_for('dashboard_professor') }}#relatorios"
-              class="nav-link"
-            >
+            <a href="{{ url_for('professor_relatorios') }}" class="nav-link">
               <i class="bi bi-calendar-check-fill me-2"></i> Relatórios
             </a>
           </li>
 
           <li class="nav-item mb-2">
-            <a href="{{ url_for('perfil_professor') }}" class="nav-link">
+            <a href="{{ url_for('perfil_professor') }}" class="nav-link active">
               <i class="bi bi-person-circle me-2"></i> Perfil
             </a>
           </li>

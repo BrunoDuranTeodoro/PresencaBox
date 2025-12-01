@@ -3,64 +3,226 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cadastrar Novo Rosto</title>
+    <title>Cadastrar Novo Rosto - SENAI Presença</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/styleCadastro.css') }}"
     />
+    <style>
+      :root {
+        --senai-red: #ff0000;
+        --senai-red-dark: #cc0000;
+        --dark-bg: #1b1b1b;
+        --card-bg: #262626;
+        --text-color: #f0f0f0;
+        --text-muted: #aaaaaa;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .page-wrapper {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem;
+      }
+
+      .card-main {
+        background: var(--card-bg);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      }
+
+      .page-title {
+        font-weight: 700;
+        color: var(--senai-red);
+      }
+
+      .badge-step {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--text-muted);
+      }
+
+      .video-wrapper {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+        background: #111827;
+      }
+
+      .face-tip {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .btn-round {
+        border-radius: 999px;
+        font-weight: 600;
+      }
+
+      .btn-primary-main {
+        background: var(--senai-red);
+        border: none;
+        color: #fff;
+      }
+
+      .btn-primary-main:hover {
+        background: var(--senai-red-dark);
+      }
+
+      .btn-secondary-main {
+        background: #181818;
+        border-color: #4b5563;
+        color: var(--text-color);
+      }
+
+      .btn-secondary-main:hover {
+        background: #262626;
+        border-color: #6b7280;
+      }
+
+      .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      input.form-control,
+      select.form-select {
+        background-color: #181818;
+        color: var(--text-color);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 8px;
+        padding: 0.5rem;
+      }
+
+      input.form-control::placeholder {
+        color: var(--text-muted);
+      }
+
+      input.form-control:focus,
+      select.form-select:focus {
+        background-color: #181818;
+        color: #fff;
+        outline: none;
+        border-color: var(--senai-red);
+        box-shadow: 0 0 0 1px rgba(255,0,0,0.35);
+      }
+
+      .result-box {
+        min-height: 2rem;
+        font-weight: 600;
+      }
+
+      .link-back {
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+
+      .link-back:hover {
+        color: var(--text-color);
+      }
+    </style>
   </head>
 
-  <body class="bg-light">
-    <div class="container py-5 text-center">
-      <h2 class="mb-4">Cadastrar Novo Rosto</h2>
-
-      <div class="mb-3">
-        <label for="cameraSelect" class="form-label">Selecionar câmera:</label>
-        <select id="cameraSelect" class="form-select w-auto mx-auto"></select>
+  <body>
+    <div class="page-wrapper">
+      <div class="mb-4 text-center">
+        <div class="badge-step mb-1">Cadastro de Aluno</div>
+        <h2 class="page-title mb-1">Cadastrar Novo Rosto</h2>
+        <p class="text-muted mb-0">
+          Preencha os dados do aluno, selecione a turma e capture uma foto clara do rosto.
+        </p>
       </div>
 
-      <video
-        id="video"
-        class="border rounded mb-3"
-        autoplay
-        playsinline
-        width="320"
-        height="240"
-      ></video>
-      <canvas id="canvas" style="display: none"></canvas>
+      <div class="card card-main p-4">
+        <div class="row g-4 align-items-start">
+          
+          <!-- Coluna da câmera -->
+          <div class="col-lg-6">
+            <label for="cameraSelect" class="form-label">Selecionar câmera</label>
+            <select id="cameraSelect" class="form-select form-select-sm mb-3"></select>
 
-      <div class="mb-3">
-        <input
-          type="text"
-          id="nome"
-          class="form-control w-50 mx-auto"
-          placeholder="Nome do aluno"
-        />
+            <div class="video-wrapper mb-2">
+              <video
+                id="video"
+                autoplay
+                playsinline
+                muted
+              ></video>
+            </div>
+
+            <p class="face-tip mb-3">
+              Posicione o rosto centralizado, em um ambiente bem iluminado.
+              Evite bonés, máscaras ou óculos escuros.
+            </p>
+
+            <div class="d-flex gap-2">
+              <button id="btnStart" class="btn btn-secondary-main btn-round px-3">
+                Iniciar câmera
+              </button>
+              <button id="btnSnapshot" class="btn btn-primary-main btn-round px-3">
+                Capturar e salvar
+              </button>
+            </div>
+
+            <canvas id="canvas" style="display:none;"></canvas>
+          </div>
+
+          <!-- Coluna do formulário -->
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome do aluno</label>
+              <input
+                type="text"
+                id="nome"
+                class="form-control form-control-sm"
+                placeholder="Ex: João da Silva"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="turmaSelect" class="form-label">Turma do aluno</label>
+              <select id="turmaSelect" class="form-select form-select-sm">
+                <option value="">Carregando turmas...</option>
+              </select>
+            </div>
+
+            <div id="result" class="mt-3 result-box"></div>
+
+            <hr class="border-secondary mt-4" />
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{{ url_for('dashboard_professor') }}" class="link-back">
+                ← Voltar ao painel do professor
+              </a>
+              <small class="text-muted">
+                Dados salvos diretamente no sistema de presença.
+              </small>
+            </div>
+          </div>
+
+        </div>
       </div>
-
-      <div class="mb-3">
-        <label for="turmaSelect" class="form-label">Turma do aluno:</label>
-        <select id="turmaSelect" class="form-select w-50 mx-auto">
-          <option value="">Selecionar...</option>
-        </select>
-      </div>
-
-      <div class="d-flex justify-content-center gap-3 mb-4">
-        <button id="btnStart" class="btn btn-primary">Iniciar Câmera</button>
-        <button id="btnSnapshot" class="btn btn-success">Capturar</button>
-      </div>
-
-      <div id="result" class="fw-bold"></div>
-
-      <hr class="my-4" />
-      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary"
-        >Voltar</a
-      >
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

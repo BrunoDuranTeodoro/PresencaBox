@@ -1,11 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatórios de Presença - SENAI Presença</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styleDashboardProfessor.css') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 </head>
+
 <body>
-    
+<div class="dashboard-wrapper d-flex">
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column p-3">
+    <div class="sidebar-header text-center mb-5">
+      <span class="fw-bold me-1">SENAI</span><br>Presença Facial
+    </div>
+
+    <ul class="nav flex-column mb-auto">
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('dashboard_professor') }}" class="nav-link">
+          <i class="bi bi-house-door-fill me-2"></i> Dashboard
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('professor_alunos') }}" class="nav-link">
+          <i class="bi bi-people-fill me-2"></i> Meus Alunos
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('professor_relatorios') }}" class="nav-link active">
+          <i class="bi bi-calendar-check-fill me-2"></i> Relatórios
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('perfil_professor') }}" class="nav-link">
+          <i class="bi bi-person-circle me-2"></i> Perfil
+        </a>
+      </li>
+    </ul>
+
+    <hr>
+
+    <div class="dropdown">
+      <a href="{{ url_for('logout_professor') }}" class="d-flex align-items-center text-decoration-none">
+        <i class="bi bi-box-arrow-right me-2 text-danger"></i>
+        <strong class="text-danger">Sair</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content flex-grow-1">
+
+    <header class="main-header p-3 mb-4 d-flex justify-content-between align-items-center">
+      <div class="welcome-info">
+        <h5 class="mb-0">Relatórios de Presença</h5>
+        <p class="text-muted-white small mb-0">
+          <span class="text-senai-red fw-bold">{{ nome }}</span> —
+          {{ hoje.strftime("%A, %d de %B de %Y") }}
+        </p>
+      </div>
+
+      <a href="{{ url_for('logout_professor') }}" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-box-arrow-right me-1"></i> Logout
+      </a>
+    </header>
+
+    <div class="container pb-4">
+
+      <!-- Cards de resumo -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="stat-card shadow-sm p-3">
+            <i class="bi bi-calendar-event text-senai-red fs-4"></i>
+            <p class="stat-value">{{ total_presencas }}</p>
+            <p class="stat-label">Presenças no dia selecionado</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card shadow-sm p-3">
+            <i class="bi bi-clock-history text-info fs-4"></i>
+            <p class="stat-value">{{ data_selecionada }}</p>
+            <p class="stat-label">Data analisada</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card main-area-card shadow-sm p-4 mb-4">
+        <h5 class="mb-3">Filtros</h5>
+        <form method="GET" class="row g-3 align-items-end">
+
+          <div class="col-md-4">
+            <label for="data" class="form-label fw-bold">Data</label>
+            <input
+              type="date"
+              id="data"
+              name="data"
+              class="form-control"
+              value="{{ data_selecionada }}"
+            >
+          </div>
+
+          <div class="col-md-4">
+            <label for="turma" class="form-label fw-bold">Turma</label>
+            <select id="turma" name="turma" class="form-select">
+              <option value="todas">Todas</option>
+              {% for t in turmas %}
+                <option value="{{ t.id }}"
+                  {% if filtro_turma == t.id|string %}selected{% endif %}>
+                  {{ t.nome }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-danger w-100 fw-bold">Aplicar</button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Tabela de presenças -->
+      <div class="card main-area-card shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Presenças registradas</h5>
+          <span class="small text-muted-white">
+            Exibindo {{ total_presencas }} registro(s)
+          </span>
+        </div>
+
+        {% if presencas %}
+          <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Horário</th>
+                  <th>Aluno</th>
+                  <th>Turma</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in presencas %}
+                  <tr>
+                    <td>{{ p.data_hora.strftime("%H:%M:%S") }}</td>
+                    <td>{{ p.aluno_nome }}</td>
+                    <td>{{ p.turma_nome or '-' }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted-white mb-0">
+            Nenhuma presença encontrada para os filtros selecionados.
+          </p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer-senai text-center p-2 small">
+  © SENAI-SP {{ current_year }} | Sistema de Presença Facial
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
